@@ -1,10 +1,40 @@
--- Execute uma vez no SQL Editor do Supabase. Nenhuma tabela tem acesso direto do navegador.
+-- Snapshot e permissões do catálogo Jackeline. Execute uma vez no projeto dedicado.
 create table if not exists public.catalog (id text primary key, data jsonb not null, version bigint not null default 1);
 create table if not exists public.editors (email text primary key, role text not null check (role in ('admin','editor')));
 alter table public.catalog enable row level security;
 alter table public.editors enable row level security;
 revoke all on public.catalog, public.editors from anon, authenticated;
-grant all on public.catalog, public.editors to service_role;
+grant select on public.catalog to anon, authenticated;
+grant update(data,version) on public.catalog to authenticated;
+grant select,insert,update,delete on public.editors to authenticated;
+create schema if not exists app_private;
+revoke all on schema app_private from public, anon;
+grant usage on schema app_private to authenticated;
+-- Definer is limited to a verified-user permission lookup, avoiding recursive RLS.
+create or replace function app_private.catalog_role() returns text
+language sql stable security definer set search_path = '' as $$
+ select case when u.email = 'gabibpacheco27@gmail.com' then 'admin'
+ else (select e.role from public.editors e where e.email = lower(u.email)) end
+ from auth.users u where u.id = auth.uid() and u.email_confirmed_at is not null
+$$;
+revoke all on function app_private.catalog_role() from public, anon;
+grant execute on function app_private.catalog_role() to authenticated;
+create policy catalog_public_read on public.catalog for select to anon,authenticated using (true);
+create policy catalog_editor_update on public.catalog for update to authenticated
+ using ((select app_private.catalog_role()) in ('admin','editor'))
+ with check ((select app_private.catalog_role()) in ('admin','editor'));
+create policy editors_read on public.editors for select to authenticated
+ using (email = lower((select auth.jwt())->>'email') or (select app_private.catalog_role()) = 'admin');
+create policy editors_add on public.editors for insert to authenticated
+ with check ((select app_private.catalog_role()) = 'admin' and email <> 'gabibpacheco27@gmail.com');
+create policy editors_change on public.editors for update to authenticated
+ using ((select app_private.catalog_role()) = 'admin' and email <> 'gabibpacheco27@gmail.com')
+ with check ((select app_private.catalog_role()) = 'admin' and email <> 'gabibpacheco27@gmail.com');
+create policy editors_remove on public.editors for delete to authenticated
+ using ((select app_private.catalog_role()) = 'admin' and email <> 'gabibpacheco27@gmail.com');
+create policy dress_upload on storage.objects for insert to authenticated
+ with check (bucket_id = 'dresses' and (select app_private.catalog_role()) in ('admin','editor'));
+
 insert into storage.buckets (id,name,public,file_size_limit,allowed_mime_types) values ('dresses','dresses',true,4000000,array['image/jpeg','image/png','image/webp']) on conflict(id) do nothing;
 insert into public.catalog(id,data) values ('main','[
   {

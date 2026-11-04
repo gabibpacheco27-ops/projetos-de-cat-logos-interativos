@@ -1,14 +1,14 @@
 import fs from 'node:fs';
 import { randomUUID } from 'node:crypto';
 
-const configured = () => Boolean(process.env.SUPABASE_URL && process.env.SUPABASE_SERVICE_ROLE_KEY && process.env.SUPABASE_ANON_KEY);
+const configured = () => Boolean(process.env.SUPABASE_URL && process.env.SUPABASE_ANON_KEY);
 const owner = () => (process.env.OWNER_EMAIL || '').trim().toLowerCase();
 export function validCatalog(data) {
   return Array.isArray(data) && data.length <= 1000 && data.every(d => d && typeof d.id === 'string' && typeof d.name === 'string' && d.name.length <= 200 && typeof d.description === 'string' && d.description.length <= 5000 && Array.isArray(d.sizes) && d.sizes.every(s => typeof s === 'string' && s.length <= 40) && Array.isArray(d.colors) && d.colors.every(c => typeof c.name === 'string' && c.name.length <= 80 && /^#[a-f0-9]{6}$/i.test(c.hex)) && Array.isArray(d.photos) && d.photos.every(s => typeof s === 'string' && (/^\/dresses\/[\w.-]+$/.test(s) || (s.startsWith(process.env.SUPABASE_URL + '/storage/v1/object/public/dresses/') && /^https:\/\//.test(s))))) && new Set(data.map(d => d.id)).size === data.length;
 }
-function headers(key) { return { apikey: key, Authorization: `Bearer ${key}`, 'Content-Type': 'application/json' }; }
-async function db(path, options = {}) {
-  const result = await fetch(`${process.env.SUPABASE_URL}/rest/v1/${path}`, { ...options, headers: { ...headers(process.env.SUPABASE_SERVICE_ROLE_KEY), ...options.headers } });
+function headers(token) { return { apikey: process.env.SUPABASE_ANON_KEY, ...(token ? {Authorization: `Bearer ${token}`} : {}), 'Content-Type': 'application/json' }; }
+async function db(path, options = {}, token) {
+  const result = await fetch(`${process.env.SUPABASE_URL}/rest/v1/${path}`, { ...options, headers: { ...headers(token), ...options.headers } });
   if (!result.ok) throw new Error('storage');
   return result.status === 204 ? null : result.json();
 }
@@ -20,9 +20,9 @@ async function identity(req) {
   const user = await result.json();
   if (!user.email_confirmed_at) return null;
   const email = user.email?.toLowerCase();
-  if (email && email === owner()) return { email, role: 'admin', owner: true };
-  const rows = await db(`editors?email=eq.${encodeURIComponent(email || '')}&select=role`);
-  return rows[0] ? { email, role: rows[0].role, owner: false } : { email, role: null };
+  if (email && email === owner()) return { email, role: 'admin', owner: true, token };
+  const rows = await db(`editors?email=eq.${encodeURIComponent(email || '')}&select=role`, {}, token);
+  return rows[0] ? { email, role: rows[0].role, owner: false, token } : { email, role: null };
 }
 export function sameOrigin(req) {
   const origin = req.headers.origin;
@@ -45,7 +45,7 @@ export function endpoint(route) { return async (req, res) => {
     if (route === 'login' && req.method === 'POST') {
       const {email,password} = body(req) || {};
       if (typeof email !== 'string' || typeof password !== 'string' || email.length > 254 || password.length > 200) return send(res,400,{error:'Informe e-mail e senha.'});
-      const r=await fetch(`${process.env.SUPABASE_URL}/auth/v1/token?grant_type=password`,{method:'POST',headers:headers(process.env.SUPABASE_ANON_KEY),body:JSON.stringify({email,password})});
+      const r=await fetch(`${process.env.SUPABASE_URL}/auth/v1/token?grant_type=password`,{method:'POST',headers:headers(),body:JSON.stringify({email,password})});
       if(!r.ok)return send(res,r.status===429?429:401,{error:r.status===429?'Muitas tentativas. Aguarde e tente novamente.':'Confira seu e-mail, senha e a confirmação do cadastro.'});
       const session=await r.json();
       res.setHeader('Set-Cookie',`jc_session=${session.access_token}; HttpOnly; Secure; SameSite=Strict; Path=/; Max-Age=${Math.min(session.expires_in || 3600,3600)}`);
@@ -57,7 +57,7 @@ export function endpoint(route) { return async (req, res) => {
     const user=publicRead?null:await identity(req);
     if(route==='access' && req.method==='GET'){
       if(!user)return send(res,200,{signedIn:false,allowed:false});
-      const editors=user.role==='admin'?await db('editors?select=email,role&order=email'):[];
+      const editors=user.role==='admin'?await db('editors?select=email,role&order=email',{},user.token):[];
       return send(res,200,{signedIn:true,allowed:!!user.role,isOwner:user.role==='admin',email:user.email,editors});
     }
     if(!publicRead && !user?.role)return send(res,403,{error:'Sem permissão. Entre com um e-mail autorizado.'});
@@ -76,7 +76,7 @@ export function endpoint(route) { return async (req, res) => {
       const version=Number(String(req.headers['if-match']||'').replaceAll('"',''));
       if(!Number.isSafeInteger(version)||version<1)return send(res,409,{error:'Atualize a página antes de salvar.'});
       const clean=route==='textos'?Object.fromEntries(keys.map(k=>[k,data[k].trim()])):data;
-      const updated=await db(`catalog?id=eq.${id}&version=eq.${version}`,{method:'PATCH',headers:{Prefer:'return=representation'},body:JSON.stringify({data:clean,version:version+1})});
+      const updated=await db(`catalog?id=eq.${id}&version=eq.${version}`,{method:'PATCH',headers:{Prefer:'return=representation'},body:JSON.stringify({data:clean,version:version+1})},user.token);
       if(!updated.length)return send(res,409,{error:'Outra pessoa alterou o catálogo. Atualize a página antes de salvar.'});
       res.setHeader('ETag',`"${version+1}"`);return send(res,200,{ok:true});
     }
@@ -84,8 +84,8 @@ export function endpoint(route) { return async (req, res) => {
       if(user.role!=='admin')return send(res,403,{error:'Somente responsáveis podem alterar acessos.'});
       const input=body(req)||{}; const email=String(input.email||'').trim().toLowerCase();
       if(!/^\S+@\S+\.\S+$/.test(email)||email.length>254||email===owner()||email===user.email)return send(res,400,{error:'Informe outro e-mail válido.'});
-      if(input.remove)await db(`editors?email=eq.${encodeURIComponent(email)}`,{method:'DELETE'});
-      else await db('editors?on_conflict=email',{method:'POST',headers:{Prefer:'resolution=merge-duplicates,return=minimal'},body:JSON.stringify({email,role:input.role==='admin'?'admin':'editor'})});
+      if(input.remove)await db(`editors?email=eq.${encodeURIComponent(email)}`,{method:'DELETE'},user.token);
+      else await db('editors?on_conflict=email',{method:'POST',headers:{Prefer:'resolution=merge-duplicates,return=minimal'},body:JSON.stringify({email,role:input.role==='admin'?'admin':'editor'})},user.token);
       return send(res,200,{ok:true});
     }
     if(route==='upload'&&req.method==='POST'){
@@ -97,7 +97,7 @@ export function endpoint(route) { return async (req, res) => {
       const magic=file.type==='image/jpeg'?bytes[0]===255&&bytes[1]===216&&bytes[2]===255:file.type==='image/png'?bytes.subarray(0,8).equals(Buffer.from([137,80,78,71,13,10,26,10])):bytes.toString('ascii',0,4)==='RIFF'&&bytes.toString('ascii',8,12)==='WEBP';
       if(!magic)return send(res,400,{error:'Arquivo de imagem inválido.'});
       const key=randomUUID()+'.'+({'image/jpeg':'jpg','image/png':'png','image/webp':'webp'}[file.type]);
-      const r=await fetch(`${process.env.SUPABASE_URL}/storage/v1/object/dresses/${key}`,{method:'POST',headers:{...headers(process.env.SUPABASE_SERVICE_ROLE_KEY),'Content-Type':file.type},body:bytes});if(!r.ok)throw Error('upload');
+      const r=await fetch(`${process.env.SUPABASE_URL}/storage/v1/object/dresses/${key}`,{method:'POST',headers:{...headers(user.token),'Content-Type':file.type},body:bytes});if(!r.ok)throw Error('upload');
       return send(res,200,{url:`${process.env.SUPABASE_URL}/storage/v1/object/public/dresses/${key}`});
     }
     return send(res,405,{error:'Método não permitido.'});
