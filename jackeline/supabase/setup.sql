@@ -12,13 +12,25 @@ revoke all on schema app_private from public, anon;
 grant usage on schema app_private to authenticated;
 -- Definer is limited to a verified-user permission lookup, avoiding recursive RLS.
 create or replace function app_private.catalog_role() returns text
-language sql stable security definer set search_path = '' as $$
- select case when u.email = 'gabibpacheco27@gmail.com' then 'admin'
+language sql stable security definer set search_path = '' as $
+ select case when lower(u.email) = 'gabibpacheco27@gmail.com' then 'admin'
  else (select e.role from public.editors e where e.email = lower(u.email)) end
- from auth.users u where u.id = auth.uid() and u.email_confirmed_at is not null
-$$;
+ from auth.users u
+ where u.id = auth.uid() and u.email_confirmed_at is not null
+ and exists (
+  select 1 from auth.sessions s where s.user_id=u.id
+  and s.id::text=(auth.jwt()->>'session_id')
+  and (s.not_after is null or s.not_after>now())
+ )
+$;
 revoke all on function app_private.catalog_role() from public, anon;
 grant execute on function app_private.catalog_role() to authenticated;
+create or replace function public.catalog_access() returns text
+language sql stable security invoker set search_path = '' as $
+ select app_private.catalog_role()
+$;
+revoke all on function public.catalog_access() from public, anon;
+grant execute on function public.catalog_access() to authenticated;
 create policy catalog_public_read on public.catalog for select to anon,authenticated using (true);
 create policy catalog_editor_update on public.catalog for update to authenticated
  using ((select app_private.catalog_role()) in ('admin','editor'))
