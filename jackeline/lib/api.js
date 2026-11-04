@@ -6,6 +6,12 @@ const owner = () => (process.env.OWNER_EMAIL || '').trim().toLowerCase();
 export function validCatalog(data) {
   return Array.isArray(data) && data.length <= 1000 && data.every(d => d && typeof d.id === 'string' && typeof d.name === 'string' && d.name.length <= 200 && typeof d.description === 'string' && d.description.length <= 5000 && Array.isArray(d.sizes) && d.sizes.every(s => typeof s === 'string' && s.length <= 40) && Array.isArray(d.colors) && d.colors.every(c => typeof c.name === 'string' && c.name.length <= 80 && /^#[a-f0-9]{6}$/i.test(c.hex)) && Array.isArray(d.photos) && d.photos.every(s => typeof s === 'string' && (/^\/dresses\/[\w.-]+$/.test(s) || (s.startsWith(process.env.SUPABASE_URL + '/storage/v1/object/public/dresses/') && /^https:\/\//.test(s))))) && new Set(data.map(d => d.id)).size === data.length;
 }
+export function parseVersion(value) {
+  const match = /^(?:W\/)?"?([1-9]\d*)"?$/.exec(String(value || ''));
+  if (!match) return null;
+  const version = Number(match[1]);
+  return Number.isSafeInteger(version) ? version : null;
+}
 function headers(token) { return { apikey: process.env.SUPABASE_ANON_KEY, ...(token ? {Authorization: `Bearer ${token}`} : {}), 'Content-Type': 'application/json' }; }
 async function db(path, options = {}, token) {
   const result = await fetch(`${process.env.SUPABASE_URL}/rest/v1/${path}`, { ...options, headers: { ...headers(token), ...options.headers } });
@@ -66,19 +72,19 @@ export function endpoint(route) { return async (req, res) => {
       if(req.method==='GET'){
         const rows=await db(`catalog?id=eq.${id}&select=data,version`);
         if(!rows[0])throw new Error('missing_seed');
-        res.setHeader('ETag',`"${rows[0].version}"`);return send(res,200,rows[0].data);
+        res.setHeader('X-Catalog-Version',String(rows[0].version));res.setHeader('ETag',`"${rows[0].version}"`);return send(res,200,rows[0].data);
       }
       if(req.method!=='PUT')return send(res,405,{error:'Método não permitido.'});
       const data=body(req);
       if(JSON.stringify(data).length>500000)return send(res,400,{error:'Catálogo muito grande.'});
       const keys=Object.keys(fallback('textos'));
       if(route==='catalog'?!validCatalog(data):(!data || keys.some(k=>typeof data[k]!=='string'||!data[k].trim()||data[k].length>500)))return send(res,400,{error:'Confira os campos preenchidos.'});
-      const version=Number(String(req.headers['if-match']||'').replaceAll('"',''));
+      const version=parseVersion(req.headers['x-catalog-version'] || req.headers['if-match']);
       if(!Number.isSafeInteger(version)||version<1)return send(res,409,{error:'Atualize a página antes de salvar.'});
       const clean=route==='textos'?Object.fromEntries(keys.map(k=>[k,data[k].trim()])):data;
       const updated=await db(`catalog?id=eq.${id}&version=eq.${version}`,{method:'PATCH',headers:{Prefer:'return=representation'},body:JSON.stringify({data:clean,version:version+1})},user.token);
       if(!updated.length)return send(res,409,{error:'Outra pessoa alterou o catálogo. Atualize a página antes de salvar.'});
-      res.setHeader('ETag',`"${version+1}"`);return send(res,200,{ok:true});
+      res.setHeader('X-Catalog-Version',String(version+1));res.setHeader('ETag',`"${version+1}"`);return send(res,200,{ok:true});
     }
     if(route==='access'&&req.method==='POST'){
       if(user.role!=='admin')return send(res,403,{error:'Somente responsáveis podem alterar acessos.'});
