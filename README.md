@@ -40,3 +40,12 @@ npm test
 
 Os testes cobrem validação de catálogo, rejeição de URLs inseguras, bloqueio de gravação entre origens e modo sem backend. APIs públicas, páginas e foto verificados com HTTP 200 na produção. Testes de RLS no banco confirmaram leitura pública, bloqueio de usuário não autorizado, edição da responsável e da funcionária e bloqueio de elevação de privilégios. Contas e alterações de teste foram revertidas. A verificação completa de login e upload pelo navegador aguarda a conta da responsável.
 
+## Revisão de segurança e sincronização — 04/11/2026
+
+- 16 testes automatizados: validação, sessão, upload, conflitos de versão e atualização da vitrine.
+- Testes transacionais no banco: leitura pública, bloqueio de escrita anônima, privacidade da equipe, edição autorizada, bloqueio de elevação de privilégios e rejeição de sessão revogada; dados de teste revertidos.
+- O logout revoga a sessão corrente no Supabase; políticas validam a sessão no banco.
+- Atualização da vitrine: a cada 15 segundos enquanto visível e ao retornar à aba. Não é streaming instantâneo.
+- Funcionárias precisam de conta confirmada em Supabase Authentication e autorização com papel editor no painel. A retirada do e-mail da equipe bloqueia as próximas operações.
+- Aviso externo ainda pendente: proteção contra senhas vazadas desativada no Supabase. A opção exige Pro ou superior; nenhuma contratação foi feita. Use senhas individuais fortes.
+- Testes de HTTP/upload usam serviço simulado; o navegador foi usado para verificar a vitrine pública. Não houve login com senha de funcionária durante a revisão.
