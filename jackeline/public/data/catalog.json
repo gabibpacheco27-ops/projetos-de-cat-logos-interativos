@@ -1,0 +1,137 @@
+[
+  {
+    "id": "4",
+    "name": "Modelo 04",
+    "colors": [
+      {
+        "name": "Amarelo",
+        "hex": "#eddd34"
+      }
+    ],
+    "sizes": [],
+    "description": "",
+    "photos": [
+      "/dresses/vestido4.jpeg"
+    ]
+  },
+  {
+    "id": "7",
+    "name": "Modelo 07",
+    "colors": [
+      {
+        "name": "Amarelo",
+        "hex": "#e9d48b"
+      }
+    ],
+    "sizes": [],
+    "description": "",
+    "photos": [
+      "/dresses/vestido7.jpeg"
+    ]
+  },
+  {
+    "id": "6",
+    "name": "Modelo 06",
+    "colors": [
+      {
+        "name": "Amarelo",
+        "hex": "#d5c47f"
+      }
+    ],
+    "sizes": [],
+    "description": "",
+    "photos": [
+      "/dresses/vestido6.jpeg"
+    ]
+  },
+  {
+    "id": "8",
+    "name": "Modelo 08",
+    "colors": [
+      {
+        "name": "Laranja",
+        "hex": "#e56c25"
+      }
+    ],
+    "sizes": [],
+    "description": "",
+    "photos": [
+      "/dresses/vestido8.jpeg"
+    ]
+  },
+  {
+    "id": "5",
+    "name": "Modelo 05",
+    "colors": [
+      {
+        "name": "Verde",
+        "hex": "#78813f"
+      }
+    ],
+    "sizes": [],
+    "description": "",
+    "photos": [
+      "/dresses/vestido5.jpeg"
+    ]
+  },
+  {
+    "id": "1",
+    "name": "Modelo 01",
+    "colors": [
+      {
+        "name": "Azul",
+        "hex": "#bbcee5"
+      }
+    ],
+    "sizes": [],
+    "description": "",
+    "photos": [
+      "/dresses/vestido1.jpeg"
+    ]
+  },
+  {
+    "id": "2",
+    "name": "Modelo 02",
+    "colors": [
+      {
+        "name": "Azul",
+        "hex": "#7ea3d5"
+      }
+    ],
+    "sizes": [],
+    "description": "",
+    "photos": [
+      "/dresses/vestido2.jpeg"
+    ]
+  },
+  {
+    "id": "3",
+    "name": "Modelo 03",
+    "colors": [
+      {
+        "name": "Azul",
+        "hex": "#17358a"
+      }
+    ],
+    "sizes": [],
+    "description": "",
+    "photos": [
+      "/dresses/vestido3.jpeg"
+    ]
+  },
+  {
+    "id": "9",
+    "name": "Modelo 09",
+    "colors": [
+      {
+        "name": "Preto",
+        "hex": "#242322"
+      }
+    ],
+    "sizes": [],
+    "description": "",
+    "photos": [
+      "/dresses/vestido9.jpeg"
+    ]
+  }
+]
