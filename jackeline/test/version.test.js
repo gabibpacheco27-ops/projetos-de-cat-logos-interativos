@@ -27,6 +27,7 @@ test('API aceita ETag fraca e mantém o bloqueio de alterações concorrentes',a
  Object.assign(process.env,{SUPABASE_URL:'https://example.supabase.co',SUPABASE_ANON_KEY:'test',OWNER_EMAIL:'owner@example.invalid'});
  let version=1;
  globalThis.fetch=async(url,opts)=>{
+  if(url.endsWith('/rpc/catalog_access'))return Response.json('admin');
   if(url.endsWith('/auth/v1/user'))return Response.json({email:'owner@example.invalid',email_confirmed_at:'2026-01-01'});
   if(opts.method==='PATCH'){
    const expected=Number(new URL(url).searchParams.get('version').slice(3));
