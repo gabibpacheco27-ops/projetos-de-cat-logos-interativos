@@ -1,5 +1,11 @@
 # Catálogos interativos — Jackeline Costa
 
+Catálogo: https://jackeline-costa.vercel.app/
+
+Painel: https://jackeline-costa.vercel.app/editar.html
+
+Hospedagem: Vercel, equipe GBorg, projeto jackeline-costa. Backend: Supabase. A senha da responsável é criada em Authentication → Users no Supabase; a conta do dashboard não cria automaticamente uma conta para o painel.
+
 - `jackeline/`: versão independente para Vercel, com catálogo público, painel, APIs e configuração do Supabase.
 - `original-sites/`: código original preservado, destinado ao ambiente anterior. Não selecionar essa pasta na Vercel.
 
@@ -9,7 +15,7 @@ Importe este repositório na Vercel e escolha **Root Directory: jackeline**. O a
 
 ## Ativação do painel
 
-O catálogo público funciona com o snapshot migrado enquanto o backend não está configurado. O painel permanece bloqueado para gravação até a ativação. Esse modo não representa uma migração concluída do painel.
+O catálogo está publicado, o banco foi inicializado e as variáveis da Vercel foram configuradas. Falta criar a conta de autenticação da responsável e validar o fluxo completo de edição com esse login. Os passos 1 a 3 abaixo documentam a configuração inicial já concluída. Não execute novamente o SQL de inicialização em um banco existente sem revisar as políticas.
 
 1. Crie um projeto Supabase dedicado à loja.
 2. Execute `jackeline/supabase/setup.sql` no SQL Editor. Ele cria as tabelas protegidas por RLS, o bucket de fotos e importa o snapshot. Não sobrescreve dados existentes.
@@ -32,4 +38,5 @@ cd jackeline
 npm test
 ```
 
-Os testes cobrem validação de catálogo, rejeição de URLs inseguras, bloqueio de gravação entre origens e modo sem backend. A verificação completa de login, persistência, fotos e permissões depende do Supabase ativo.
+Os testes cobrem validação de catálogo, rejeição de URLs inseguras, bloqueio de gravação entre origens e modo sem backend. APIs públicas, páginas e foto verificados com HTTP 200 na produção. Testes de RLS no banco confirmaram leitura pública, bloqueio de usuário não autorizado, edição da responsável e da funcionária e bloqueio de elevação de privilégios. Contas e alterações de teste foram revertidas. A verificação completa de login e upload pelo navegador aguarda a conta da responsável.
+
