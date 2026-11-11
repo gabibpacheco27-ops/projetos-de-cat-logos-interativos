@@ -1,0 +1,9 @@
+export const URL='https://uvczcwqmbtlxcupakdga.supabase.co';
+export const KEY='sb_publishable_NLHOmQIhSwjHx1rrsyS9Gg_ReJf3rsO';
+const STORE='camila-borges-session';
+export function session(){try{return JSON.parse(localStorage.getItem(STORE))}catch{return null}}
+export function saveSession(s){if(s)localStorage.setItem(STORE,JSON.stringify({...s,expires_at:Date.now()+s.expires_in*1000}));else localStorage.removeItem(STORE)}
+export async function request(path,{method='GET',body,auth=false,headers={}}={}){let s=session();if(auth){if(!s)throw Error('Entre novamente para continuar.');if(s.expires_at<Date.now()+60000){const r=await fetch(URL+'/auth/v1/token?grant_type=refresh_token',{method:'POST',headers:{apikey:KEY,'Content-Type':'application/json'},body:JSON.stringify({refresh_token:s.refresh_token})});if(!r.ok){saveSession(null);throw Error('Sua sessão expirou. Entre novamente.')}s=await r.json();saveSession(s)}}const r=await fetch(URL+path,{method,headers:{apikey:KEY,...(auth?{Authorization:'Bearer '+s.access_token}:{}),...(!(body instanceof File)?{'Content-Type':'application/json'}:{}),...headers},body:body instanceof File?body:body===undefined?undefined:JSON.stringify(body)});if(!r.ok){let e;try{e=await r.json()}catch{}throw Error(e?.msg||e?.message||e?.error_description||'Não foi possível concluir. Tente novamente.')}return r.status===204?null:r.json()}
+export async function loadCatalog(){const rows=await request('/rest/v1/catalog?id=eq.1&select=content,revision');if(!rows[0])throw Error('Catálogo indisponível.');return rows[0]}
+export function safeImage(src){if(typeof src!=='string')return '';if(/^assets\/[a-zA-Z0-9._-]+$/.test(src))return src;try{const u=new window.URL(src);return u.protocol==='https:'?u.href:''}catch{return ''}}
+export function whats(number,message){return 'https://wa.me/'+number.replace(/\D/g,'')+'?text='+encodeURIComponent(message)}
