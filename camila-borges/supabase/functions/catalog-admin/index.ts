@@ -1,6 +1,6 @@
 const AUTH='https://okgcraqgdgqnjbqijsfx.supabase.co', AUTH_KEY='sb_publishable_F7NRsVi3ZIXzob1CqMXmKA_1VCH62CE';
 const text=(v,max=2048)=>typeof v==='string'&&v.length<=max;
-const photo=(s,base)=>text(s)&&(/^assets\/[\w.-]+$/.test(s)||s.startsWith(base+'/storage/v1/object/public/dresses/'));
+const photo=(s,base)=>text(s)&&(/^assets\/[\w.-]+$/.test(s)||s.startsWith(base+'/storage/v1/object/public/camila-dresses/'));
 Deno.serve(async req=>{
  const out=(value,status=200,version=null)=>Response.json(value,{status,headers:{'Cache-Control':'no-store',...(version?{'X-Catalog-Version':String(version)}:{})}});
  try{
@@ -24,9 +24,9 @@ Deno.serve(async req=>{
  if(!['image/jpeg','image/png','image/webp'].includes(type)||bytes.length>4000000||!bytes.length)return out({error:'Use JPG, PNG ou WebP de até 4 MB.'},400);
  const magic=type==='image/jpeg'?bytes[0]===255&&bytes[1]===216&&bytes[2]===255:type==='image/png'?[137,80,78,71,13,10,26,10].every((v,i)=>bytes[i]===v):new TextDecoder().decode(bytes.slice(0,4))==='RIFF'&&new TextDecoder().decode(bytes.slice(8,12))==='WEBP';
  if(!magic)return out({error:'Arquivo de imagem inválido.'},400);
- const path=crypto.randomUUID()+'.'+({'image/jpeg':'jpg','image/png':'png','image/webp':'webp'}[type]);const r=await fetch(base+'/storage/v1/object/dresses/'+path,{method:'POST',headers:{...headers,'Content-Type':type},body:bytes});if(!r.ok)throw Error('upload');return out({url:base+'/storage/v1/object/public/dresses/'+path})}
+ const path=crypto.randomUUID()+'.'+({'image/jpeg':'jpg','image/png':'png','image/webp':'webp'}[type]);const r=await fetch(base+'/storage/v1/object/camila-dresses/'+path,{method:'POST',headers:{...headers,'Content-Type':type},body:bytes});if(!r.ok)throw Error('upload');return out({url:base+'/storage/v1/object/public/camila-dresses/'+path})}
  if(!['catalog','textos'].includes(route))return out({error:'Rota inválida.'},404);
- const row=(await db('catalog?id=eq.1&select=content,revision'))[0];
+ const row=(await db('camila_catalog?id=eq.1&select=content,revision'))[0];
  if(req.method==='GET')return out(route==='catalog'?row.content.models.map(m=>({...m,description:m.desc})):row.content.texts,200,row.revision);
  if(req.method!=='PUT')return out({error:'Método inválido.'},405);
  const version=Number(String(req.headers.get('X-Catalog-Version')||'').replaceAll('"',''));if(!Number.isSafeInteger(version)||version!==row.revision)return out({error:'Outra pessoa alterou o catálogo. Atualize a página antes de salvar.'},409);
@@ -39,6 +39,6 @@ Deno.serve(async req=>{
  const map=new URL(data.maps);if(map.protocol!=='https:'||!['www.google.com','google.com','maps.google.com','maps.app.goo.gl'].includes(map.hostname))return out({error:'Confira o link do Google Maps.'},400);
  row.content.texts=Object.fromEntries(keys.map(k=>[k,data[k].trim()]));
  }
- const updated=await db('catalog?id=eq.1&revision=eq.'+version,{method:'PATCH',headers:{Prefer:'return=representation'},body:JSON.stringify({content:row.content,revision:version+1,updated_at:new Date().toISOString()})});if(!updated.length)return out({error:'Outra pessoa alterou o catálogo. Atualize antes de salvar.'},409);return out({ok:true},200,version+1);
+ const updated=await db('camila_catalog?id=eq.1&revision=eq.'+version,{method:'PATCH',headers:{Prefer:'return=representation'},body:JSON.stringify({content:row.content,revision:version+1,updated_at:new Date().toISOString()})});if(!updated.length)return out({error:'Outra pessoa alterou o catálogo. Atualize antes de salvar.'},409);return out({ok:true},200,version+1);
  }catch(e){return out({error:'Não foi possível concluir. Confira os dados e tente novamente.'},500)}
 });

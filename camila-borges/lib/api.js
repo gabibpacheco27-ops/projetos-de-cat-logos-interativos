@@ -1,5 +1,5 @@
 const AUTH='https://okgcraqgdgqnjbqijsfx.supabase.co', KEY='sb_publishable_F7NRsVi3ZIXzob1CqMXmKA_1VCH62CE';
-const BRIDGE='https://uvczcwqmbtlxcupakdga.supabase.co/functions/v1/catalog-admin';
+const BRIDGE='https://okgcraqgdgqnjbqijsfx.supabase.co/functions/v1/camila-catalog-admin';
 const session=req=>req.headers.cookie?.split(';').map(x=>x.trim()).find(x=>x.startsWith('cb_session='))?.slice(11);
 const headers={apikey:KEY,'Content-Type':'application/json'};
 function sameOrigin(req){try{const u=new URL(req.headers.origin);return u.protocol==='https:'&&u.host===req.headers.host}catch{return false}}
