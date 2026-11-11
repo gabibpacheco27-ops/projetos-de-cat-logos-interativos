@@ -1,0 +1,11 @@
+{
+  "name": "senhorita-moda-festa",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node --test test/*.test.js"
+  },
+  "engines": {
+    "node": "24.x"
+  }
+}

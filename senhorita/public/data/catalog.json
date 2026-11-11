@@ -1,0 +1,112 @@
+[
+  {
+    "id": "1",
+    "name": "Aurora",
+    "colors": [
+      {
+        "name": "Rosa",
+        "hex": "#d8a7ac"
+      }
+    ],
+    "sizes": [
+      "P",
+      "M"
+    ],
+    "description": "Modelo ilustrativo para apresentar o catálogo. Substitua pelas fotos e informações do acervo da loja.",
+    "photos": [
+      "/dresses/modelo-1.jpg"
+    ]
+  },
+  {
+    "id": "2",
+    "name": "Essência",
+    "colors": [
+      {
+        "name": "Preto",
+        "hex": "#363335"
+      }
+    ],
+    "sizes": [
+      "PP",
+      "P"
+    ],
+    "description": "Modelo ilustrativo para apresentar o catálogo. Substitua pelas fotos e informações do acervo da loja.",
+    "photos": [
+      "/dresses/modelo-2.jpg"
+    ]
+  },
+  {
+    "id": "3",
+    "name": "Serena",
+    "colors": [
+      {
+        "name": "Areia",
+        "hex": "#d4bfa4"
+      }
+    ],
+    "sizes": [
+      "P",
+      "M",
+      "G"
+    ],
+    "description": "Modelo ilustrativo para apresentar o catálogo. Substitua pelas fotos e informações do acervo da loja.",
+    "photos": [
+      "/dresses/modelo-3.jpg"
+    ]
+  },
+  {
+    "id": "4",
+    "name": "Encanto",
+    "colors": [
+      {
+        "name": "Rosa",
+        "hex": "#c78b94"
+      }
+    ],
+    "sizes": [
+      "M",
+      "G"
+    ],
+    "description": "Modelo ilustrativo para apresentar o catálogo. Substitua pelas fotos e informações do acervo da loja.",
+    "photos": [
+      "/dresses/modelo-4.jpg"
+    ]
+  },
+  {
+    "id": "5",
+    "name": "Sublime",
+    "colors": [
+      {
+        "name": "Areia",
+        "hex": "#dccab8"
+      }
+    ],
+    "sizes": [
+      "PP",
+      "P",
+      "M"
+    ],
+    "description": "Modelo ilustrativo para apresentar o catálogo. Substitua pelas fotos e informações do acervo da loja.",
+    "photos": [
+      "/dresses/modelo-5.jpg"
+    ]
+  },
+  {
+    "id": "6",
+    "name": "Brisa",
+    "colors": [
+      {
+        "name": "Rosa",
+        "hex": "#e4babc"
+      }
+    ],
+    "sizes": [
+      "P",
+      "M"
+    ],
+    "description": "Modelo ilustrativo para apresentar o catálogo. Substitua pelas fotos e informações do acervo da loja.",
+    "photos": [
+      "/dresses/modelo-6.jpg"
+    ]
+  }
+]
