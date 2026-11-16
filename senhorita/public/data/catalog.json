@@ -1,112 +1,62 @@
 [
   {
-    "id": "1",
-    "name": "Aurora",
+    "id": "toda-bella-1",
+    "name": "Longo Chocolate",
     "colors": [
       {
-        "name": "Rosa",
-        "hex": "#d8a7ac"
+        "name": "Marrom",
+        "hex": "#56362a"
       }
     ],
-    "sizes": [
-      "P",
-      "M"
-    ],
-    "description": "Modelo ilustrativo para apresentar o catálogo. Substitua pelas fotos e informações do acervo da loja.",
+    "sizes": [],
+    "description": "Vestido longo tomara que caia em tom chocolate, com drapeado, recorte lateral, fenda e faixa no pescoço. Consulte nossa equipe sobre tamanhos e disponibilidade para a sua data.",
     "photos": [
-      "/dresses/modelo-1.jpg"
+      "/dresses/toda-bella-1.jpg"
     ]
   },
   {
-    "id": "2",
-    "name": "Essência",
+    "id": "toda-bella-2",
+    "name": "Longo Verde em Camadas",
     "colors": [
       {
-        "name": "Preto",
-        "hex": "#363335"
+        "name": "Verde",
+        "hex": "#28594e"
       }
     ],
-    "sizes": [
-      "PP",
-      "P"
-    ],
-    "description": "Modelo ilustrativo para apresentar o catálogo. Substitua pelas fotos e informações do acervo da loja.",
+    "sizes": [],
+    "description": "Vestido longo tomara que caia em verde, com aplicações florais e saia em camadas. Consulte nossa equipe sobre tamanhos e disponibilidade para a sua data.",
     "photos": [
-      "/dresses/modelo-2.jpg"
+      "/dresses/toda-bella-2.jpg"
     ]
   },
   {
-    "id": "3",
-    "name": "Serena",
+    "id": "toda-bella-3",
+    "name": "Longo Vermelho",
     "colors": [
       {
-        "name": "Areia",
-        "hex": "#d4bfa4"
+        "name": "Vermelho",
+        "hex": "#cf241c"
       }
     ],
-    "sizes": [
-      "P",
-      "M",
-      "G"
-    ],
-    "description": "Modelo ilustrativo para apresentar o catálogo. Substitua pelas fotos e informações do acervo da loja.",
+    "sizes": [],
+    "description": "Vestido longo vermelho com decote coração, cintura drapeada e saia ampla em camadas. Consulte nossa equipe sobre tamanhos e disponibilidade para a sua data.",
     "photos": [
-      "/dresses/modelo-3.jpg"
+      "/dresses/toda-bella-3.jpg"
     ]
   },
   {
-    "id": "4",
-    "name": "Encanto",
+    "id": "toda-bella-4",
+    "name": "Longo Azul Marinho",
     "colors": [
       {
-        "name": "Rosa",
-        "hex": "#c78b94"
+        "name": "Azul marinho",
+        "hex": "#171b38"
       }
     ],
-    "sizes": [
-      "M",
-      "G"
-    ],
-    "description": "Modelo ilustrativo para apresentar o catálogo. Substitua pelas fotos e informações do acervo da loja.",
+    "sizes": [],
+    "description": "Vestido longo azul marinho com decote coração e saia ampla. Consulte nossa equipe sobre tamanhos e disponibilidade para a sua data.",
     "photos": [
-      "/dresses/modelo-4.jpg"
-    ]
-  },
-  {
-    "id": "5",
-    "name": "Sublime",
-    "colors": [
-      {
-        "name": "Areia",
-        "hex": "#dccab8"
-      }
-    ],
-    "sizes": [
-      "PP",
-      "P",
-      "M"
-    ],
-    "description": "Modelo ilustrativo para apresentar o catálogo. Substitua pelas fotos e informações do acervo da loja.",
-    "photos": [
-      "/dresses/modelo-5.jpg"
-    ]
-  },
-  {
-    "id": "6",
-    "name": "Brisa",
-    "colors": [
-      {
-        "name": "Rosa",
-        "hex": "#e4babc"
-      }
-    ],
-    "sizes": [
-      "P",
-      "M"
-    ],
-    "description": "Modelo ilustrativo para apresentar o catálogo. Substitua pelas fotos e informações do acervo da loja.",
-    "photos": [
-      "/dresses/modelo-6.jpg"
+      "/dresses/toda-bella-4.jpg"
     ]
   }
 ]

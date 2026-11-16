@@ -86,7 +86,7 @@ export function endpoint(route) { return async (req, res) => {
       if(data===undefined||data===null)return send(res,400,{error:'Envie os dados do catálogo.'});
       if(JSON.stringify(data).length>500000)return send(res,400,{error:'Catálogo muito grande.'});
       const keys=Object.keys(fallback('textos'));
-      if(route==='catalog'?!validCatalog(data):(!data || keys.some(k=>typeof data[k]!=='string'||(k!=='demoNotice'&&!data[k].trim())||data[k].length>2048)||!/^\d{10,15}$/.test(data.whatsapp)||!validMapUrl(data.mapUrl)||!validCatalog([{id:'hero',name:'hero',description:'',sizes:[],colors:[],photos:[data.heroImage]}])))return send(res,400,{error:'Confira os campos preenchidos.'});
+      if(route==='catalog'?!validCatalog(data):(!data || keys.some(k=>typeof data[k]!=='string'||(!['demoNotice','address','mapUrl'].includes(k)&&!data[k].trim())||data[k].length>2048)||!/^\d{10,15}$/.test(data.whatsapp)||(data.mapUrl!==''&&!validMapUrl(data.mapUrl))||!validCatalog([{id:'hero',name:'hero',description:'',sizes:[],colors:[],photos:[data.heroImage]}])))return send(res,400,{error:'Confira os campos preenchidos.'});
       const version=parseVersion(req.headers['x-catalog-version'] || req.headers['if-match']);
       if(!Number.isSafeInteger(version)||version<1)return send(res,409,{error:'Atualize a página antes de salvar.'});
       const clean=route==='textos'?Object.fromEntries(keys.map(k=>[k,data[k].trim()])):data;
@@ -117,3 +117,4 @@ export function endpoint(route) { return async (req, res) => {
     return send(res,405,{error:'Método não permitido.'});
   }catch(error){if(error instanceof SyntaxError)return send(res,400,{error:'Dados inválidos. Confira o formulário e tente novamente.'});return send(res,500,{error:'Não foi possível concluir. Confira a configuração do serviço e tente novamente.'})}
 }; }
+
